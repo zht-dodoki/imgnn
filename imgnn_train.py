@@ -16,7 +16,6 @@ CUDA_LAUNCH_BLOCKING = 1
 
 
 def generate_unique_random_int(low, high, exclude, exclude2):
-    # 排除数组转换为集合以提高查找速度
     exclude_set = set(exclude)
     exclude_set2 = set(exclude2)
 
@@ -44,7 +43,6 @@ adj_list = []
 for adjl in graph.adj_list:
     adjl = adjl + adjl.T.multiply(adjl.T > adjl) - adjl.multiply(adjl.T > adjl)
     adjl = normalize_adj(adjl + sp.eye(adjl.shape[0]))
-    # 将处理后的邻接矩阵转换为torch的稀疏矩阵格式
     adjl = torch.Tensor(adjl.toarray()).to_sparse()
     adj_list.append(adjl)
 graph.adj_list = adj_list
@@ -92,7 +90,6 @@ for epoch in range(0):
 
     for batch_idx, data_pair in enumerate(train_loader):
         adj_list = [adj.to(device) for adj in data_pair[1]]
-        # x是每个节点当前的激活情况，y是每个节点的影响力估计
         x = data_pair[0][:, :, 0].float().to(device)
         y = data_pair[0][:, :, 1].float().to(device)
         optimizer.zero_grad()
