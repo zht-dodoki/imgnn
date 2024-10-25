@@ -188,27 +188,4 @@ def sisdata(file_name,train=True):
         print(f"The file '{file_txt_path}' does not exist.")
         exit()
 
-# if __name__ == "__main__":
-#
-#     file_name = 'facebook'
-#     file_txt_path = f'my_data/{file_name}.txt'
-#
-#     if os.path.exists(file_txt_path):
-#         file_pkl_path = f'my_pkl/{file_name}_sis.pkl'
-#         if os.path.exists(file_pkl_path):
-#             print(f"The file '{file_pkl_path}' exists.")
-#         else:
-#             num_nodes, num_edges, edges = read_graph_from_txt(file_txt_path)
-#             my_graph = graphdata.myGraph(num_nodes, edges)
-#             my_graph.adj_matrix = create_adj_pairs(my_graph).astype(np.float32)
-#             my_graph = add_prob_mat(my_graph)
-#             b = time.time()
-#             my_graph.inverse_pairs = add_data(my_graph, [5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
-#             e = time.time()
-#             print(f"Time: {e - b:.4f}s")
-#
-#             with open(file_pkl_path, 'wb') as file:
-#                 pickle.dump(my_graph, file)
-#     else:
-#         print(f"The file '{file_txt_path}' does not exist.")
-#         exit()
+
