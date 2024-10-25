@@ -54,9 +54,7 @@ def add_prob_mat(graph):
 
 
 def gen_seed_vec(N, n):
-    """
-    生成一个包含N个元素的向量，其中n个元素被设置为1，其余为0。
-    """
+
     seed_vec = np.zeros((N,))
     seeds = np.random.choice(N, size=n, replace=False)
     seed_vec[seeds] = 1
@@ -120,7 +118,7 @@ def add_data(graph, num_list):
 
 
 def run_mc_repeats_(graph, seed_vec, repeat=10, diffusion_limit=15):
-    # 初始化影响力矩阵，其大小与图的概率矩阵相匹配
+
     influ_mat = np.zeros((graph.prob_matrix.shape[0], diffusion_limit))
 
     for i in range(repeat):
@@ -195,27 +193,3 @@ def icdata(file_name,train=True):
         print(f"The file '{file_txt_path}' does not exist.")
         exit()
 
-# if __name__ == "__main__":
-#
-#     file_name = 'netscience'
-#     file_txt_path = f'my_data/{file_name}.txt'
-#
-#     if os.path.exists(file_txt_path):
-#         file_pkl_path = f'my_pkl/{file_name}_data.pkl'
-#         if os.path.exists(file_pkl_path):
-#             print(f"The file '{file_pkl_path}' exists.")
-#         else:
-#             num_nodes, num_edges, edges = read_graph_from_txt(file_txt_path)
-#             my_graph = graphdata.myGraph(num_nodes, edges)
-#             my_graph.adj_matrix = create_adj_pairs(my_graph).astype(np.float32)
-#             my_graph = add_prob_mat(my_graph)
-#             b = time.time()
-#             my_graph.inverse_pairs = add_data(my_graph, [5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
-#             e = time.time()
-#             print(f"Time: {e - b:.4f}s")
-#
-#             with open(file_pkl_path, 'wb') as file:
-#                 pickle.dump(my_graph, file)
-#     else:
-#         print(f"The file '{file_txt_path}' does not exist.")
-#         exit()
