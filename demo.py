@@ -1,5 +1,4 @@
 import argparse
-import random
 import predata
 import predata_lt
 import predata_sis
@@ -14,10 +13,11 @@ from torch.utils.data import DataLoader
 from torch.optim import Adam
 from gnntest import GNN
 from utils import normalize_adj, diffusion_evaluation
+import os
 
 print('Is GPU available? {}\n'.format(torch.cuda.is_available()))
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-CUDA_LAUNCH_BLOCKING = 1
+# CUDA_LAUNCH_BLOCKING = 1
 
 parser = argparse.ArgumentParser(description="IMGNN")
 
@@ -95,44 +95,47 @@ def loss_all(y, y_hat):
     forward_loss = F.mse_loss(y_hat.relu_(), y, reduction='sum')
     return forward_loss
 
+if os.path.exists(f'{file_name}{args.diffusion_model}.pth'):
+    print(f"The file {file_name}{args.diffusion_model} exists.")
 
-for epoch in range(500):
-    begin = time.time()
-    total_overall = 0
-    forward_loss = 0
+else:
+    for epoch in range(500):
+        begin = time.time()
+        total_overall = 0
+        forward_loss = 0
 
-    for batch_idx, data_pair in enumerate(train_loader):
-        adj_list = [adj.to(device) for adj in data_pair[1]]
-        x = data_pair[0][:, :, 0].float().to(device)
-        y = data_pair[0][:, :, 1].float().to(device)
-        optimizer.zero_grad()
-        loss = 0
-        for i, x_i in enumerate(x):
-            y_i = y[i]
-            y_hat = forward_model(x_i.unsqueeze(-1), adj_list[i])
-            total = loss_all(y_i, y_hat.squeeze(-1))
-            loss += total
+        for batch_idx, data_pair in enumerate(train_loader):
+            adj_list = [adj.to(device) for adj in data_pair[1]]
+            x = data_pair[0][:, :, 0].float().to(device)
+            y = data_pair[0][:, :, 1].float().to(device)
+            optimizer.zero_grad()
+            loss = 0
+            for i, x_i in enumerate(x):
+                y_i = y[i]
+                y_hat = forward_model(x_i.unsqueeze(-1), adj_list[i])
+                total = loss_all(y_i, y_hat.squeeze(-1))
+                loss += total
 
-        total_overall += loss.item()
-        loss = loss / x.size(0)
-        loss.backward()
-        optimizer.step()
-        for p in forward_model.parameters():
-            p.data.clamp_(min=0)
-    end = time.time()
-    # print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
-    print("Epoch: {}".format(epoch + 1),
-          "\tTotal: {:.4f}".format(total_overall / len(train_set)),
-          "\tTime: {:.4f}".format(end - begin)
-          )
+            total_overall += loss.item()
+            loss = loss / x.size(0)
+            loss.backward()
+            optimizer.step()
+            for p in forward_model.parameters():
+                p.data.clamp_(min=0)
+        end = time.time()
+        # print("---------------------------------------------------------------------------------------------------------------------------------------------------------------")
+        print("Epoch: {}".format(epoch + 1),
+              "\tTotal: {:.4f}".format(total_overall / len(train_set)),
+              "\tTime: {:.4f}".format(end - begin)
+              )
 
-file_pth_path = f'{file_name}{args.diffusion_model}.pth'
+    file_pth_path = f'{file_name}{args.diffusion_model}.pth'
 
-torch.save(forward_model, file_pth_path)
-print('forward_model saved')
+    torch.save(forward_model, file_pth_path)
+    print('forward_model saved')
 
 print("node seed influence prediction")
-
+print("seed nodes set size: ", int(args.K))
 
 target_name = args.target_datasets
 if args.diffusion_model == 'IC':
@@ -208,4 +211,5 @@ prb = graph.prob_matrix
 test = np.nonzero(seed_vec)[0]
 
 influence = diffusion_evaluation(adj, test, prb, args.diffusion_model)
+print("seed nodes set size: ", int(args.K))
 print(f'{args.diffusion_model}'+' Diffusion count: {}'.format(influence))
