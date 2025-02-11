@@ -263,13 +263,13 @@ def diffusion_evaluation(adj_matrix, seed, prb, diffusion='LT'):
         if diffusion == 'LT':
             model = ep.ThresholdModel(G)
             config = mc.Configuration()
-            for n in G.nodes():
-                config.add_node_configuration("threshold", n, 0.5)
+            for x, y in G.edges():
+                config.add_edge_configuration("threshold", (x, y), prb[x, y])
         elif diffusion == 'IC':
             model = ep.IndependentCascadesModel(G)
             config = mc.Configuration()
-            for e in G.edges():
-                config.add_edge_configuration("threshold", e, 1 / nx.degree(G)[e[1]])
+            for x, y in G.edges():
+                config.add_edge_configuration("threshold", (x, y), prb[x, y])
         elif diffusion == 'SIS':
             model = ep.SISModel(G)
             config = mc.Configuration()
