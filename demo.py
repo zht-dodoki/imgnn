@@ -99,7 +99,7 @@ if os.path.exists(f'{file_name}{args.diffusion_model}.pth'):
     print(f"The file {file_name}{args.diffusion_model} exists.")
 
 else:
-    for epoch in range(500):
+    for epoch in range(200):
         begin = time.time()
         total_overall = 0
         forward_loss = 0
