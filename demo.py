@@ -168,19 +168,8 @@ def top_k_positions(dd, k):
 
 
 for j in range(1):
-    begin = time.time()
-    new_impact = 0
+    adj = graph.prob_matrix
 
-    mask = (seed_list_impact == 1).nonzero()[0]
-    adj = graph.prob_matrix.copy().tolil()
-
-    adj = adj.tocoo()
-    mask_set = set(mask)
-
-    adj.data[np.isin(adj.row, mask_set)] = 0.0
-    adj.data[np.isin(adj.col, mask_set)] = 0.0
-
-    adj = adj.tocsr()
     adj = adj.maximum(adj.T)
     adj = normalize_adj(adj + sp.eye(adj.shape[0]))
     adj = adj.tocoo()
@@ -188,18 +177,11 @@ for j in range(1):
     values = torch.FloatTensor(adj.data)
     shape = torch.Size(adj.shape)
     adj = torch.sparse.FloatTensor(indices, values, shape)
-
     seed_list_impact = torch.from_numpy(seed_list_impact).float()
-
-    res = forward_model(seed_list_impact.unsqueeze(-1), adj)
-
+    begin = time.time()
+    res = model(seed_list_impact.unsqueeze(-1), adj)
+    end = time.time()
     dd = res.squeeze(-1)
-
-    max_value = torch.max(dd)
-    max_indices = (dd == max_value).nonzero()
-    max_indices_len = len(max_indices)
-    dd[max_indices] = 0
-
     seed_vec = top_k_positions(dd, maxseednum)
     end = time.time()
 
