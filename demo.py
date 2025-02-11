@@ -134,7 +134,7 @@ else:
     torch.save(forward_model, file_pth_path)
     print('forward_model saved')
 
-print("node seed influence prediction")
+print("node seed influence prediction satage")
 print("seed nodes set size: ", int(args.K))
 
 target_name = args.target_datasets
