@@ -118,39 +118,30 @@ def run_mc_repeats_(graph, seed_vec, repeat=10, diffusion_limit=15, re=True):
     return influ_mat
 
 
-def run_mc_(graph, seed_vec, diffusion_limit=25) -> np.ndarray:
+def run_mc(graph, seed_vec, diffusion_limit=25) -> np.ndarray:
     activated_vec = seed_vec.copy()
-    influ_mat = [seed_vec, ]
-    last_activated = np.argwhere(seed_vec == 1).flatten().tolist()
-    next_activated = []
+    num_nodes = activated_vec.size
+    thresholds = np.random.rand(num_nodes)  
+    influ_mat = [activated_vec.copy()]
+    last_activated = np.argwhere(activated_vec == 1).flatten().tolist()
     diffusion_count = 0
-
-    while len(last_activated) > 0:
-        for u in last_activated:
-            u_neighs = graph.adj_matrix[[u]].nonzero()[1]
-
-            for v in u_neighs:
-                if activated_vec[v] == 0:
-                    active_neighbors = graph.adj_matrix[v:v + 1, :].nonzero()[1]
-                    influence_sum = sum([graph.prob_matrix[w, v] for w in active_neighbors if activated_vec[w] == 1])
-
-                    if influence_sum >= 1:
-                        activated_vec[v] = 1
-                        next_activated.append(v)
-
+    while diffusion_count < diffusion_limit:
+        to_activate = []
+        inactive_nodes = np.argwhere(activated_vec == 0).flatten()
+        for v in inactive_nodes:
+            neighbors = graph.adj_matrix[v].nonzero()[1]
+            influence_sum = sum(graph.prob_matrix[w, v] for w in neighbors if activated_vec[w] == 1)
+            if influence_sum >= thresholds[v]:
+                to_activate.append(v)
+        if not to_activate:
+            break  
+        activated_vec[to_activate] = 1
         influ_mat.append(activated_vec.copy())
-        last_activated = next_activated
-        next_activated = []
+        last_activated = to_activate
         diffusion_count += 1
-        if len(influ_mat) >= diffusion_limit:
-            break
-
-    if len(influ_mat) < diffusion_limit:
-        last_state = influ_mat[-1]
-        influ_mat.extend([last_state] * (diffusion_limit - len(influ_mat)))
-
-    influ_mat = np.array(influ_mat).T
-    return influ_mat
+    while len(influ_mat) < diffusion_limit:
+        influ_mat.append(activated_vec.copy())
+    return np.array(influ_mat).T
 
 
 def ltdata(file_name,train=True):
