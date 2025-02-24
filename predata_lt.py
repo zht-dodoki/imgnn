@@ -118,7 +118,7 @@ def run_mc_repeats_(graph, seed_vec, repeat=10, diffusion_limit=15, re=True):
     return influ_mat
 
 
-def run_mc(graph, seed_vec, diffusion_limit=25) -> np.ndarray:
+def run_mc_(graph, seed_vec, diffusion_limit=25) -> np.ndarray:
     activated_vec = seed_vec.copy()
     num_nodes = activated_vec.size
     thresholds = np.random.rand(num_nodes)  
