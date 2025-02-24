@@ -89,7 +89,7 @@ def add_data(graph, num_list):
                     j) + '---------------------node：' + str(m) + '---------------------' + str(
                     s) + '---------------------')
                 seed_vec[m] = 1
-                res = run_mc_repeats_(graph, seed_vec, 1, 15)
+                res = run_mc_repeats_(graph, seed_vec, 10, 15)
                 res = res[:, -1]
                 res[res >= 0.1] = 1
                 res[res < 0.1] = 0
@@ -121,15 +121,17 @@ def run_mc_repeats_(graph, seed_vec, repeat=10, diffusion_limit=15, re=True):
 def run_mc_(graph, seed_vec, diffusion_limit=25) -> np.ndarray:
     activated_vec = seed_vec.copy()
     num_nodes = activated_vec.size
-    thresholds = np.random.rand(num_nodes)  
+    thresholds = np.random.rand(num_nodes) 
+
     influ_mat = [activated_vec.copy()]
-    last_activated = np.argwhere(activated_vec == 1).flatten().tolist()
+
     diffusion_count = 0
+
     while diffusion_count < diffusion_limit:
         to_activate = []
         inactive_nodes = np.argwhere(activated_vec == 0).flatten()
         for v in inactive_nodes:
-            neighbors = graph.adj_matrix[v].nonzero()[1]
+            neighbors = graph.adj_matrix[[v]].nonzero()[1]
             influence_sum = sum(graph.prob_matrix[w, v] for w in neighbors if activated_vec[w] == 1)
             if influence_sum >= thresholds[v]:
                 to_activate.append(v)
@@ -137,10 +139,11 @@ def run_mc_(graph, seed_vec, diffusion_limit=25) -> np.ndarray:
             break  
         activated_vec[to_activate] = 1
         influ_mat.append(activated_vec.copy())
-        last_activated = to_activate
         diffusion_count += 1
+
     while len(influ_mat) < diffusion_limit:
         influ_mat.append(activated_vec.copy())
+    influ_mat = influ_mat[:diffusion_limit]  
     return np.array(influ_mat).T
 
 
