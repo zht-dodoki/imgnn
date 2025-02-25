@@ -32,14 +32,19 @@ def create_adj_pairs(graph,edges):
 
 
 def add_prob_mat(graph):
-    """Add a diffusion probability matrix to the graph."""
+    """Add a diffusion probability matrix to the graph.
+    """
+    in_degrees = np.array(graph.adj_matrix.sum(axis=0)).flatten() 
+    in_degrees[in_degrees == 0] = 1  
+
     prob_data = copy.copy(graph.adj_matrix.data)
     prob_indices = copy.copy(graph.adj_matrix.indices)
     prob_indptr = copy.copy(graph.adj_matrix.indptr)
     prob_shape = copy.copy(graph.adj_matrix.shape)
 
     for i, v in enumerate(prob_data):
-        prob_data[i] = random.choice([0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1])
+        v = prob_indices[i]
+        prob_data[i] = 1.0 / in_degrees[v]
 
     prob_matrix = sp.csr_matrix((prob_data, prob_indices, prob_indptr), shape=prob_shape)
     graph.prob_matrix = prob_matrix.astype(np.float32)
