@@ -88,6 +88,7 @@ def add_data(graph, num_list):
             for m in range(graph.num_nodes):
                 if now_inversed_list[m] == 1:
                     inverse[m, 0] = 1
+                    inverse[m, 1] = 1
                     continue
                 b = time.time()
                 print('---------------------' + str(i) + '%---------------------' + str(
