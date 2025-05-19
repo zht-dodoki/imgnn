@@ -64,14 +64,13 @@ def add_data(graph, num_list):
     N = graph.prob_matrix.shape[0]
     seed_vec = np.zeros((N,))
 
-    inverse = torch.zeros((N, 2), dtype=torch.float32)
     inverse_pairs = []
 
     graph.adj_list = [graph.adj_matrix.copy() for _ in range(50)]
     s = 0
     for i in num_list:
         n = int(graph.num_nodes * i / 100)
-        for j in range(5):
+        for j in range(1):
             inverse = torch.zeros((N, 2), dtype=torch.float32)
 
             now_inversed_list = gen_seed_vec(N, n).astype(np.int64)
@@ -174,9 +173,10 @@ def sisdata(file_name,train=True):
             my_graph = graphdata.myGraph(num_nodes, edges)
             my_graph.adj_matrix = create_adj_pairs(my_graph, edges).astype(np.float32)
             my_graph = add_prob_mat(my_graph)
+            nlist = np.random.uniform(low=0, high=50, size=50)
             b = time.time()
             if train:
-                my_graph.inverse_pairs = add_data(my_graph, [5, 10, 15, 20, 25, 30, 35, 40, 45, 50])
+                my_graph.inverse_pairs = add_data(my_graph, nlist)
             e = time.time()
             print(f"Time: {e - b:.4f}s")
             if train:
