@@ -118,7 +118,7 @@ def run_mc_repeats_(graph, seed_vec, repeat=10, diffusion_limit=15, re=True):
 
     for i in range(repeat):
         this_mat = run_sis(graph, seed_vec, diffusion_limit)
-        influ_mat += this_mat
+        influ_mat += this_mat[:, -1]
 
     influ_mat /= repeat
     return influ_mat
