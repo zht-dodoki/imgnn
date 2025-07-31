@@ -252,7 +252,7 @@ class InverseProblemDataset(torch.utils.data.Dataset):
 
 
 def diffusion_evaluation(adj_matrix, seed, prb, diffusion='LT'):
-    G = nx.Graph(adj_matrix)
+    G = nx.from_scipy_sparse_array(adj_matrix)
     influ_mat = np.zeros((adj_matrix.shape[0]))
     total = 0
     for i in range(1000):
@@ -265,8 +265,8 @@ def diffusion_evaluation(adj_matrix, seed, prb, diffusion='LT'):
         elif diffusion == 'IC':
             model = ep.IndependentCascadesModel(G)
             config = mc.Configuration()
-            for x, y in G.edges():
-                config.add_edge_configuration("threshold", (x, y), prb[x, y])
+            for e in G.edges():
+                config.add_edge_configuration("threshold", e, 1 / nx.degree(G)[e[1]])
         elif diffusion == 'SIS':
             model = ep.SISModel(G)
             config = mc.Configuration()
