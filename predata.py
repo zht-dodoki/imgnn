@@ -109,7 +109,7 @@ def run_mc_repeats_(graph, seed_vec, repeat=10, diffusion_limit=15):
     influ_mat = np.zeros((graph.prob_matrix.shape[0], diffusion_limit))
     for i in range(repeat):
         this_mat = run_mc_(graph, seed_vec, diffusion_limit)
-        influ_mat += this_mat
+        influ_mat += this_mat[:, -1]
     influ_mat /= repeat
     return influ_mat
 
