@@ -5,6 +5,7 @@ import scipy.sparse as sp
 import networkx as nx
 import ndlib.models.ModelConfig as mc
 import ndlib.models.epidemics as ep
+import copy
 
 def collate_fn_batch(batch):
     features_list, adj_list, label_list = zip(*batch)
@@ -60,6 +61,39 @@ def loss_fun(pred, target):
     mask = (S != 0)
     loss = loss[mask].mean() 
     return loss
+
+
+
+def read_graph_from_txt(file_path):
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+        num_nodes, num_edges = map(int, lines[0].split())
+        edges = [tuple(map(int, line.split())) for line in lines[1:]]
+    return num_nodes, num_edges, edges
+
+
+def create_adj_pairs(graph):
+    G = nx.DiGraph()
+    G.add_nodes_from(range(graph.num_nodes))
+    G.add_edges_from(graph.edges)
+    adj_matrix = nx.adjacency_matrix(G)
+    return adj_matrix
+
+
+def add_prob_mat(graph):
+    in_degrees = np.array(graph.adj_matrix.sum(axis=0)).flatten()
+    in_degrees[in_degrees == 0] = 1
+    prob_data = copy.copy(graph.adj_matrix.data)
+    prob_indices = copy.copy(graph.adj_matrix.indices)
+    prob_indptr = copy.copy(graph.adj_matrix.indptr)
+    prob_shape = copy.copy(graph.adj_matrix.shape)
+    for i, v in enumerate(prob_data):
+        v = prob_indices[i]
+        prob_data[i] = 1.0 / in_degrees[v]
+    prob_matrix = sp.csr_matrix((prob_data, prob_indices, prob_indptr), shape=prob_shape)
+    graph.prob_matrix = prob_matrix.astype(np.float32)
+    graph.prob_matrix_copy = graph.prob_matrix.copy()
+    return graph
 
 
 
