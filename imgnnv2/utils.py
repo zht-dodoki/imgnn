@@ -98,6 +98,7 @@ def add_prob_mat(graph):
 
 
 def DeepIM_diffusion_evaluation(adj_matrix, seed, prb, diffusion='IC'):
+        """Reference from DeepIM: https://github.com/triplej0079/DeepIM/blob/main/main/utils.py"""
     G = nx.from_scipy_sparse_matrix(adj_matrix)
     total = 0
     for _ in range(1000):
